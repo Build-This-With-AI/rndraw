@@ -11,10 +11,15 @@
     "fmt": "pnpm biome format . --write && pnpm biome check . --write"
   },
   "dependencies": {
+    "@auth/drizzle-adapter": "^1.5.3",
+    "@clerk/nextjs": "^5.7.1",
     "@libsql/client": "^0.14.0",
     "@libsql/kysely-libsql": "^0.4.1",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.1",
+    "@t3-oss/env-nextjs": "^0.11.1",
     "better-auth": "0.2.9-beta.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -26,7 +31,8 @@
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",

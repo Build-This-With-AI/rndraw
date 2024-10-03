@@ -1,9 +1,24 @@
-import { LibsqlDialect } from "@libsql/kysely-libsql";
-import { betterAuth } from "better-auth";
+import NextAuth from "next-auth";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { accounts, db, sessions, users, verificationTokens } from "@/db/schema";
+import Google from "next-auth/providers/google";
 
-export const auth = betterAuth({
-  database: new LibsqlDialect({
-    url: process.env.TURSO_DATABASE_URL || "",
-    authToken: process.env.TURSO_AUTH_TOKEN || "",
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: DrizzleAdapter(db, {
+    usersTable: users,
+    accountsTable: accounts,
+    sessionsTable: sessions,
+    verificationTokensTable: verificationTokens,
   }),
+  providers: [Google],
+  callbacks: {
+    authorized: async ({ auth, request: { nextUrl } }) => {
+      if (nextUrl.pathname === "/") {
+        return true;
+      }
+
+      // Logged in users are authenticated, otherwise redirect to login page
+      return !!auth;
+    },
+  },
 });

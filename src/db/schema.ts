@@ -5,6 +5,7 @@ import {
   text,
   primaryKey,
 } from "drizzle-orm/sqlite-core";
+import { createId } from "@paralleldrive/cuid2";
 
 export const postsTable = sqliteTable("posts", {
   id: integer("id").primaryKey(),
@@ -116,3 +117,16 @@ export const authenticators = sqliteTable(
     }),
   }),
 );
+
+export const rooms = sqliteTable("rooms", {
+  id: text("id").primaryKey().$defaultFn(createId),
+  name: text("name").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+  createdBy: text("created_by").notNull(),
+  participants: integer("participants").notNull(),
+});
+
+export type InsertRoom = typeof rooms.$inferInsert;
+export type SelectRoom = typeof rooms.$inferSelect;

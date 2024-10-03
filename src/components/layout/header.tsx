@@ -1,5 +1,9 @@
+import { SignOutButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import { PenLine } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
+import { Button } from "../ui/button";
 
 export function SiteHeader() {
   return (
@@ -9,25 +13,26 @@ export function SiteHeader() {
         <span className="ml-2 text-2xl font-bold text-primary">rndraw</span>
       </Link>
       <nav className="ml-auto flex gap-4 sm:gap-6">
-        <Link
-          className="text-sm font-medium hover:underline underline-offset-4"
-          href="#features"
-        >
-          Features
-        </Link>
-        <Link
-          className="text-sm font-medium hover:underline underline-offset-4"
-          href="#pricing"
-        >
-          Pricing
-        </Link>
-        <Link
-          className="text-sm font-medium hover:underline underline-offset-4"
-          href="#about"
-        >
-          About
-        </Link>
+        <Suspense>
+          <Nav />
+        </Suspense>
       </nav>
     </header>
+  );
+}
+
+async function Nav() {
+  const user = await currentUser();
+  if (!user) {
+    return (
+      <Link href="/sign-in">
+        <Button>Sign In</Button>
+      </Link>
+    );
+  }
+  return (
+    <Button asChild>
+      <SignOutButton />
+    </Button>
   );
 }

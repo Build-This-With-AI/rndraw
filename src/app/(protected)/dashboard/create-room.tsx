@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,54 +11,51 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { db } from "@/db";
-import { type InsertRoom, rooms } from "@/db/schema";
-import { currentUser } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
+import * as React from "react";
+import { createRoomAction } from "./_actions";
 
 export function CreateRoomDialog() {
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [isPending, startTransition] = React.useTransition();
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Create Room</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <form
-          action={async (formData) => {
-            "use server";
-            const user = await currentUser();
-            if (!user) throw new Error("User not found");
-            const name = (formData.get("name") as string) ?? null;
-
-            const data: InsertRoom = {
-              createdBy: user.id,
-              name,
-              participants: 0,
-            };
-            await db.insert(rooms).values(data);
-            revalidatePath("/dashboard");
-          }}
-        >
-          <DialogHeader>
-            <DialogTitle>Create Room</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Room Name
-              </Label>
-              <Input
-                id="name"
-                defaultValue="Pedro Duarte"
-                className="col-span-3"
-                name="name"
-              />
-            </div>
+        <DialogHeader>
+          <DialogTitle>Create Room</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Room Name
+            </Label>
+            <Input
+              id="name"
+              defaultValue="Pedro Duarte"
+              className="col-span-3"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.currentTarget.value)}
+            />
           </div>
-          <DialogFooter>
-            <Button type="submit">Create</Button>
-          </DialogFooter>
-        </form>
+        </div>
+        <DialogFooter>
+          <Button
+            type="button"
+            disabled={isPending}
+            onClick={() => {
+              startTransition(async () => {
+                await createRoomAction({ name });
+                setOpen(false);
+              });
+            }}
+          >
+            {isPending ? "Creating..." : "Create"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

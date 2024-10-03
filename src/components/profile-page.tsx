@@ -21,10 +21,16 @@ import {
   Unlock,
 } from "lucide-react";
 import { useState } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 export function ProfilePage() {
   const { user } = useUser();
-  if (!user) return null;
+  if (!user)
+    return (
+      <div className="w-full p-6 ">
+        <Skeleton className="rounded-lg min-h-[300px]" />
+      </div>
+    );
   const [activeTab, setActiveTab] = useState("overview");
 
   return (

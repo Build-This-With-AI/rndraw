@@ -1,4 +1,6 @@
 import { ProfilePage } from "@/components/profile-page";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,11 +11,11 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/db";
 import { currentUser } from "@clerk/nextjs/server";
-import { Suspense } from "react";
-import { CreateRoomDialog } from "./create-room";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { EyeIcon } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
+import { DeleteRoomButton } from "./_interactive";
+import { CreateRoomDialog } from "./create-room";
 
 export default function Dashboard() {
   return (
@@ -31,6 +33,7 @@ export async function RecentRooms() {
   if (!user) throw new Error("User not found");
   const rooms = await db.query.rooms.findMany({
     where: (table, { eq }) => eq(table.createdBy, user.id),
+    orderBy: (table, { desc }) => desc(table.createdAt),
   });
   return (
     <div className="mx-auto p-6 space-y-6 w-full">
@@ -56,13 +59,18 @@ export async function RecentRooms() {
                 >
                   <TableCell className="font-medium">{room.name}</TableCell>
                   <TableCell>
-                    {new Date(room.createdAt).toLocaleString()}
+                    {new Date(room.createdAt).toLocaleDateString()}
                   </TableCell>
                   {/* <TableCell>{room.createdBy}</TableCell> */}
                   <TableCell>
-                    <Link href={`/room/${room.id}`}>
-                      <Button>View</Button>
-                    </Link>
+                    <div className="flex gap-2">
+                      <Link href={`/room/${room.id}`}>
+                        <Button size="icon">
+                          <EyeIcon className="size-4" />
+                        </Button>
+                      </Link>
+                      <DeleteRoomButton roomId={room.id} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -70,7 +78,7 @@ export async function RecentRooms() {
           </Table>
           {rooms.length === 0 && (
             <p className="text-center mt-4 text-muted-foreground">
-              No rooms found matching your search.
+              No rooms yet.
             </p>
           )}
         </CardContent>

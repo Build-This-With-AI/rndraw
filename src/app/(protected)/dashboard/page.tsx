@@ -28,7 +28,7 @@ export default function Dashboard() {
   );
 }
 
-export async function RecentRooms() {
+async function RecentRooms() {
   const user = await currentUser();
   if (!user) throw new Error("User not found");
   const rooms = await db.query.rooms.findMany({
